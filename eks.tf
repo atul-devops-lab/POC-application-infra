@@ -12,7 +12,7 @@ module "eks" {
   # the legacy aws-auth ConfigMap approach).
   enable_cluster_creator_admin_permissions = true
   enable_irsa = true
-  addons = {
+  cluster_addons = {
     coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
     vpc-cni    = { most_recent = true }
