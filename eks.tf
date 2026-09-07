@@ -15,7 +15,10 @@ module "eks" {
   addons = {
     coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
-    vpc-cni    = { most_recent = true }
+    vpc-cni    = { 
+      most_recent = true 
+      before_compute = true 
+    }
   }
   eks_managed_node_groups = {
     default = {
