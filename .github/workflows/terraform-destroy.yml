@@ -37,6 +37,13 @@ jobs:
           role-to-assume: arn:aws:iam::595981035245:role/github-actions-poc-infra-terraform
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Delete Ingress resources first (lets ALB Controller clean up ALBs)
+        run: |
+          aws eks update-kubeconfig --region ap-south-1 --name atul-devops-lab-eks
+          kubectl delete ingress --all -A --ignore-not-found=true --timeout=120s || true
+          echo "Waiting for ALB Controller to finish deleting load balancers..."
+          sleep 90
+
       - name: Terraform Init
         run: terraform init
 
