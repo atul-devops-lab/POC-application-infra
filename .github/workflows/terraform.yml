@@ -124,12 +124,9 @@ jobs:
 
       - name: Wait for Argo CD
         run: |
-          kubectl wait \
-            --for=condition=Ready \
-            pods \
-            --all \
-            -n argocd \
-            --timeout=10m
+          kubectl -n argocd rollout status deployment/argocd-server --timeout=5m
+          kubectl -n argocd rollout status deployment/argocd-repo-server --timeout=5m
+          kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=5m
 
       - name: Bootstrap Argo CD root Application
         run: |
