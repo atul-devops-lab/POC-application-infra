@@ -27,7 +27,6 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.11.0"
@@ -38,10 +37,18 @@ jobs:
           role-to-assume: arn:aws:iam::595981035245:role/github-actions-poc-infra-terraform
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Delete Ingress resources first (lets ALB Controller clean up ALBs)
+      - name: Configure kubectl
         run: |
           aws eks update-kubeconfig --region ap-south-1 --name atul-devops-lab-eks
-          kubectl delete ingress --all -A --ignore-not-found=true --timeout=120s || true
+
+      - name: Pause the parent 'platform' Application (stop it recreating children)
+        run: |
+          kubectl patch application platform -n argocd --type=merge -p '{"spec":{"syncPolicy":null}}' || true
+
+      - name: Cascade-delete poc-application (removes its Ingress/Deployment/Service properly)
+        run: |
+          kubectl patch application poc-application -n argocd -p '{"metadata":{"finalizers":["resources-finalizer.argocd.argoproj.io"]}}' --type=merge || true
+          kubectl delete application poc-application -n argocd --timeout=120s --ignore-not-found=true || true
           echo "Waiting for ALB Controller to finish deleting load balancers..."
           sleep 90
 
@@ -66,7 +73,6 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.11.0"
