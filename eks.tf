@@ -39,15 +39,21 @@ module "eks" {
     vpc-cni    = { 
       most_recent = true 
       before_compute = true 
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
   }
 
   eks_managed_node_groups = {
     default = {
       instance_types = ["t3.small"]
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 3
+      min_size       = 2
+      max_size       = 2
+      desired_size   = 2
       subnet_ids     = module.vpc.private_subnets
 
       metadata_options = {
