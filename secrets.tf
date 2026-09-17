@@ -1,5 +1,7 @@
 resource "aws_secretsmanager_secret" "grafana_admin" {
   name = "atul-devops-lab/grafana-admin-password"
+  recovery_window_in_days = 0
+  #AWS "delete this immediately and permanently on destroy
 }
 
 resource "aws_secretsmanager_secret_version" "grafana_admin" {
